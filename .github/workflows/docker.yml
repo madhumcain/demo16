@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest  # Runs on macOS check
+    runs-on: macos-latest  # Runs on macOS checks
 
     steps:
       - name: Build Docker Image
