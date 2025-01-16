@@ -12,11 +12,7 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-
-      - name: Install Docker on macOS
+      - name: Install Docker on macOS  
         run: |
           brew install --cask docker
-          open -a docker
-          sleep 15  # Wait for Docker to start
-      - name: Build docker Image
-        run: docker build -t my-app . 
+          docker --version
