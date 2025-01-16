@@ -10,10 +10,11 @@ jobs:
     runs-on: macos-latest  # Runs on macOS checks
 
     steps:
-      - name: Build Docker Image
-        run: |
-          brew install --cask docker 
-          docker build -t my-app:latest .
-      
-      - name: List Docker Images
-        run: docker images
+        - name: Checkout Repository
+          uses: actions/checkout@v3
+  
+        - name: List Directory (Debugging)
+          run: ls -l  # Check if Dockerfile is present
+  
+        - name: Build Docker Image
+          run: docker build -t my-app .
