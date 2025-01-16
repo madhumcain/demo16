@@ -1,42 +1,39 @@
-name: Build and Push Docker Image on macOS
+name: Docker Build and Push
 
 on:
   push:
     branches:
-      - main
+      - main  # Trigger on pushes to the main branch
+  pull_request:
+    branches:
+      - main  # Trigger on PRs targeting the main branch
 
 jobs:
-  build-and-push:
-    runs-on: macos-latest
+  build:
+    runs-on: macos-latest  # Use the macOS runner
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-      - name: Set Up Docker
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Authenticate with AWS ECR
-        env:
-          AWS_REGION: us-east-1
-          ECR_REPOSITORY: my-app
-          IMAGE_TAG: latest
-        run: |
-          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin <AWS_ACCOUNT_ID>.dkr.ecr.$AWS_REGION.amazonaws.com
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-      - name: Build Docker Image
-        env:
-          AWS_REGION: us-east-1
-          ECR_REPOSITORY: my-app
-          IMAGE_TAG: latest
-        run: |
-          docker build -t $ECR_REPOSITORY:$IMAGE_TAG .
-          docker tag $ECR_REPOSITORY:$IMAGE_TAG 061051251198.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Push Docker Image to AWS ECR
-        env:
-          AWS_REGION: us-east-1
-          ECR_REPOSITORY: my-app
-          IMAGE_TAG: latest
+      - name: Build and push Docker image
         run: |
-          docker push 061051251198.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+          docker buildx build --platform linux/amd64,linux/arm64 -t ${{ secrets.DOCKER_USERNAME }}/my-image:latest .
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-image:latest
