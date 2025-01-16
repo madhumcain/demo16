@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Push Docker Image on macOS
 
 on:
   push:
@@ -6,23 +6,16 @@ on:
       - main
 
 jobs:
-  build:
-    runs-on: macos-latest  # Runs on macOS checks
+  build-and-push:
+    runs-on: macos-latest
 
     steps:
-        - name: Checkout Repository
-          uses: actions/checkout@v3
-  
-        - name: Install Docker
-          run: |
-            sudo apt-get update
-            sudo apt-get install -y docker.io
-            docker --version  # Verify Docker installation
-  
-        - name: Start Docker Service (If Needed)
-          run: |
-            sudo systemctl start docker
-            sudo systemctl enable docker
-  
-        - name: Build Docker Image
-          run: docker build -t my-app .
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Install Docker on macOS
+        run: |
+          brew install --cask docker
+          open -a Docker
+          sleep 15  # Wait for Docker to start
+          docker --version
