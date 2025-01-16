@@ -16,7 +16,7 @@ jobs:
       - name: Install Docker on macOS
         run: |
           brew install --cask docker
-          open -a Docker
+          open -a docker
           sleep 15  # Wait for Docker to start
-      - name: Build Docker Image
-        run: docker build -t my-app .  
+      - name: Build docker Image
+        run: docker build -t my-app . 
